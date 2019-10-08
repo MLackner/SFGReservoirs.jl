@@ -1,14 +1,3 @@
-function pumpfun(t)
-    if -20 < t <= 0
-        f = (t+20) / 20
-    elseif 0 < t < 10
-        f = -(t-10) / 10
-    else
-        f = 0.0
-    end
-    return f
-end
-
 function model_A(du,u,p,t)
     function pumpfun(t)
         if -20 < t <= 0
