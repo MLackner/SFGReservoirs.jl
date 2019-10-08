@@ -2,6 +2,8 @@ using SFGReservoirs
 using Test
 
 using DifferentialEquations
+using SparseArrays
+
 
 @testset "sfspectra.jl" begin
     x = 2850:3020
@@ -26,19 +28,8 @@ end
     # Case: Pumping from 1 --> 3 and nothing else shoud yield .5 in 1 and 3
     u0 = [1.0, 0, 0, 0, 0]
 
-    p = (
-        k13 = 1.0,
-        k23 = 0.0,
-        k24 = 0.0,
-        k32 = 0.0,
-        k34 = 0.0,
-        k42 = 0.0,
-        k43 = 0.0,
-        kh1 = 0.0,
-        k2h = 0.0,
-        k3h = 0.0,
-        k4h = 0.0,
-    )
+    p = spzeros(5,5)
+    p[1,3] = 1.0
 
     prob = ODEProblem(model_A, u0, tspan, p)
     sol = solve(prob);
@@ -49,19 +40,13 @@ end
     #       All three states should hold 1/3
     u0 = [0, 1.0, 0, 0, 0]
 
-    p = (
-        k13 = 0.0,
-        k23 = 1.0,
-        k24 = 1.0,
-        k32 = 1.0,
-        k34 = 1.0,
-        k42 = 1.0,
-        k43 = 1.0,
-        kh1 = 0.0,
-        k2h = 0.0,
-        k3h = 0.0,
-        k4h = 0.0,
-    )
+    p = spzeros(5,5)
+    p[2,3] = 1.0
+    p[2,4] = 1.0
+    p[3,2] = 1.0
+    p[3,4] = 1.0
+    p[4,2] = 1.0
+    p[4,3] = 1.0
 
     prob = ODEProblem(model_A, u0, tspan, p)
     sol = solve(prob);
@@ -72,19 +57,8 @@ end
     # Case: Start with all in 3 and pump. We should end up with .5 in 1 and 3.
     u0 = [0, 0, 1.0, 0, 0]
 
-    p = (
-        k13 = 1.0,
-        k23 = 0.0,
-        k24 = 0.0,
-        k32 = 0.0,
-        k34 = 0.0,
-        k42 = 0.0,
-        k43 = 0.0,
-        kh1 = 0.0,
-        k2h = 0.0,
-        k3h = 0.0,
-        k4h = 0.0,
-    )
+    p = spzeros(5,5)
+    p[1,3] = 1.0
 
     prob = ODEProblem(model_A, u0, tspan, p)
     sol = solve(prob);
@@ -95,19 +69,17 @@ end
     #       We should end up with all in h.
     u0 = [1.0, 0, 0, 0, 0]
 
-    p = (
-        k13 = 1.0,
-        k23 = 1.0,
-        k24 = 1.0,
-        k32 = 1.0,
-        k34 = 1.0,
-        k42 = 1.0,
-        k43 = 1.0,
-        kh1 = 0.0,
-        k2h = 1.0,
-        k3h = 1.0,
-        k4h = 1.0,
-    )
+    p = spzeros(5,5)
+    p[1,3] = 1.0
+    p[2,3] = 1.0
+    p[2,4] = 1.0
+    p[3,2] = 1.0
+    p[3,4] = 1.0
+    p[4,2] = 1.0
+    p[4,3] = 1.0
+    p[2,5] = 1.0
+    p[3,5] = 1.0
+    p[4,5] = 1.0
 
     prob = ODEProblem(model_A, u0, tspan, p)
     sol = solve(prob);
@@ -115,21 +87,19 @@ end
 
     # Case: Pump all 1-->3 dissipate equally to 2,3,4 and drain to h-->1
     #       We should end up with all in 1.
-    u0 = [0, 0, 1.0, 0, 0]
-
-    p = (
-        k13 = 1.0,
-        k23 = 1.0,
-        k24 = 1.0,
-        k32 = 1.0,
-        k34 = 1.0,
-        k42 = 1.0,
-        k43 = 1.0,
-        kh1 = 1.0,
-        k2h = 1.0,
-        k3h = 1.0,
-        k4h = 1.0,
-    )
+    u0 = [1.0, 0, 0, 0, 0]
+    p = spzeros(5,5)
+    p[1,3] = 1.0
+    p[2,3] = 1.0
+    p[2,4] = 1.0
+    p[3,2] = 1.0
+    p[3,4] = 1.0
+    p[4,2] = 1.0
+    p[4,3] = 1.0
+    p[5,1] = 1.0
+    p[2,5] = 1.0
+    p[3,5] = 1.0
+    p[4,5] = 1.0
 
     prob = ODEProblem(model_A, u0, tspan, p)
     sol = solve(prob);
