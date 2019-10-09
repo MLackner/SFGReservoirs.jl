@@ -5,7 +5,7 @@ using SparseArrays
 include("sfspectra.jl")
 include("reservoirs.jl")
 
-export  sfspectrum,
-        model_A
+export sfspectrum
+export model
 
 end # module
