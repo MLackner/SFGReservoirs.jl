@@ -1,13 +1,12 @@
 module SFGReservoirs
 
-using SparseArrays
-using LinearAlgebra
 using DifferentialEquations
+using SFGAnalysis
+using StaticArrays
 
 include("sfspectra.jl")
 include("reservoirs.jl")
 
-export sfspectrum
 export model
 
 end # module
