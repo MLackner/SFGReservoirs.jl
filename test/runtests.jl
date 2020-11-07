@@ -292,6 +292,7 @@ begin
             0 0 0 0
             0 0 0 0
       ]
+      assignments = (ak, ax)
 
       # states represented in the spectrum
       s1 = State()
@@ -299,7 +300,7 @@ begin
       s3 = State(3, [1,2])
       state_array = [s1, s2, s3, s3, s1, s3, s2, s2]
 
-     result = fit(data, spec_params, u0, p, state_array)
+     result = fit(data, spec_params, u0, p, assignments, state_array)
      p_result = result.minimizer
      @test isapprox(p_result[end], p[end]; atol=1e-3)
 end

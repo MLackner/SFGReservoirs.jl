@@ -82,7 +82,7 @@ function solution_to_attenuated_spectra!(Y, a, wn, dl, spec_params, sol, states)
     end
 end
 
-function fit(data, spec_params, u0, p_initial, state_array)
+function fit(data, spec_params, u0, p_initial, assignments, state_array)
     function loss(p)
             SFGReservoirs.parameters_to_rate_matrix!(k, ak, p)
             SFGReservoirs.parameters_to_rate_matrix!(x, ax, p)
@@ -106,6 +106,7 @@ function fit(data, spec_params, u0, p_initial, state_array)
 
     # unpack data
     delaytimes, wavenumbers, Y′ = data
+    ak, ax = assignments
 
     n_states = length(u0)
     # preallocations
