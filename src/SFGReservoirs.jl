@@ -7,6 +7,7 @@ using StaticArrays
 include("sfspectra.jl")
 include("reservoirs.jl")
 
-export model
+export  model,
+        State
 
 end # module

@@ -1,9 +1,8 @@
 
 function model(du, u, p::Tuple, t)
-    FWHM = 15.0   # defined it as a global
-    k, x, t0 = p
+    k, x, t0, σ = p
     t0 *= 1000 # input has to be smaller for optimization purposes
-    f(t,t0) = gauss(t, t0, FWHM)
+    f(t,t0) = gauss(t, t0, σ)
 
     # number of reservoirs
     N = length(du)
@@ -73,12 +72,55 @@ function attenuated_sfspectrum!(y, x, a, A, ω, Γ)
     sfspectrum!(y, x, a, ω, Γ)
 end
 
-function solution_to_attenuated_spectra!(Y, a, u, wn, dl, spec_params, sol, states)
+function solution_to_attenuated_spectra!(Y, a, wn, dl, spec_params, sol, states)
     Threads.@threads for i in eachindex(dl)
-        u .= sol[:,i]
-        population_to_attenuation!(a, u, states)
-        y = @view Y[:,i]
-        attenuated_sfspectrum!(y, wn, a, spec_params[1], spec_params[2], spec_params[3])
+        _a = @view a[:,i]
+        _u = @view sol[:,i]
+        _y = @view Y[:,i]
+        population_to_attenuation!(_a, _u, states)
+        attenuated_sfspectrum!(_y, wn, _a, spec_params[1], spec_params[2], spec_params[3])
     end
 end
-    
+
+function fit(data, spec_params, u0, p_initial, state_array)
+    function loss(p)
+            SFGReservoirs.parameters_to_rate_matrix!(k, ak, p)
+            SFGReservoirs.parameters_to_rate_matrix!(x, ax, p)
+
+            # these should be at fixed position
+            t0 = p[end-1]
+            σ  = p[end]
+
+            tspan = extrema(delaytimes)
+            params = (k,x,t0,σ)
+            prob = ODEProblem(model, u0, tspan, params)
+            sol = solve(prob; saveat=delaytimes)
+
+            SFGReservoirs.solution_to_attenuated_spectra!(
+                Y, a, wavenumbers, delaytimes, spec_params, sol, statez
+            )
+
+            @. R = Y - Y′
+            sum(abs2.(R))
+    end
+
+    # unpack data
+    delaytimes, wavenumbers, Y′ = data
+
+    n_states = length(u0)
+    # preallocations
+    k  = @MMatrix zeros(n_states, n_states)
+    x  = @MMatrix zeros(n_states, n_states)
+    # caclulated values
+    Y = zeros(ComplexF64, (length(wavenumbers), length(delaytimes)))
+    # residuals
+    R = zeros(ComplexF64, (length(wavenumbers), length(delaytimes)))
+    # attenuation factors
+    a = zeros(length(state_array), length(delaytimes))
+
+    optimize(loss, p_initial, NelderMead(),
+            Optim.Options(
+                time_limit=120,
+            );
+    )
+end
