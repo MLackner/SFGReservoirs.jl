@@ -97,7 +97,7 @@ function fit(data, spec_params, u0, p_initial, assignments, state_array)
             sol = solve(prob; saveat=delaytimes)
 
             SFGReservoirs.solution_to_attenuated_spectra!(
-                Y, a, wavenumbers, delaytimes, spec_params, sol, statez
+                Y, a, wavenumbers, delaytimes, spec_params, sol, state_array
             )
 
             @. R = Y - Y′
