@@ -2,7 +2,7 @@
 function model(du, u, p::Tuple, t)
     k, x, t0, σ = p
     t0 *= 1000 # input has to be smaller for optimization purposes
-    f(t,t0) = gauss(t, t0, σ)
+    pump_strength = gauss(t, t0, σ)
 
     # number of reservoirs
     N = length(du)
@@ -15,8 +15,8 @@ function model(du, u, p::Tuple, t)
         i == j && continue
         du[i] -= k[i,j] * u[i]
         du[i] += k[j,i] * u[j]
-        x[i,j] ≠ 0 && (du[i] -= u[i] * x[i,j] * f(t, t0)) # pumping
-        x[j,i] ≠ 0 && (du[i] += u[j] * x[j,i] * f(t, t0)) # pumping don't flip j and i
+        x[i,j] ≠ 0 && (du[i] -= u[i] * x[i,j] * pump_strength) # pumping
+        x[j,i] ≠ 0 && (du[i] += u[j] * x[j,i] * pump_strength) # pumping don't flip j and i
     end
 
     nothing
