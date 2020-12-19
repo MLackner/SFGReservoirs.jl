@@ -67,9 +67,10 @@ begin
       k  = @MMatrix rand(3,3)
       x  = @MMatrix zeros(3,3)
       t0 = 0.0
+      σ  = 3.0
       x[1,2] = 0.1
       x[2,1] = 0.1
-      p  = (k,x,t0)
+      p  = (k,x,t0,σ)
       t  = 0.0
       @btime model(du, u, p, t)
 end
@@ -88,7 +89,8 @@ end
       x[1,2] = 1.0
       x[2,1] = 1.0
       t0 = 0
-      p = (k,x,t0)
+      σ  = 3.0
+      p = (k,x,t0,σ)
       prob = ODEProblem(model, u0, tspan, p)
       sol = solve(prob)
       @test isapprox(sol[end][1], 0.5, atol=1e-4) &&
@@ -105,7 +107,8 @@ end
       k[2,1] = 1.0
       k[2,3] = 2.0
       t0 = 0
-      p = (k,x,t0)
+      σ  = 3.0
+      p = (k,x,t0,σ)
       prob = ODEProblem(model, u0, tspan, p)
       sol = solve(prob)
       @test isapprox(sol[end][1], 1/3, atol=1e-4) &&
@@ -230,7 +233,7 @@ begin
       @btime solve(prob; saveat=delaytimes)
       sol = solve(prob; saveat=delaytimes)
 
-      display(plot(sol))
+      # display(plot(sol))
 
 
       # preallocations
@@ -245,7 +248,7 @@ begin
 
       # make synthetic data
       global syn_data = real.(Y)
-      heatmap(syn_data) |> display
+      # heatmap(syn_data) |> display
 end
 
 begin
@@ -300,7 +303,7 @@ begin
       s3 = State(3, [1,2])
       state_array = [s1, s2, s3, s3, s1, s3, s2, s2]
 
-     result = fit(data, spec_params, u0, p, assignments, state_array)
+     result = SFGReservoirs.fit(data, spec_params, u0, p, assignments, state_array)
      p_result = result.minimizer
      @test isapprox(p_result[end], p[end]; atol=1e-3)
 end
